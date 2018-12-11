@@ -1,0 +1,88 @@
+import RxSwift
+import Domain
+
+{% for type in types.based.AutoRequestable %}
+{% if type.kind == 'protocol' %}
+struct {{type.name|replace:"Type",""}}: {{type.name}} {
+    {% if type.annotations.typealias %}
+    typealias {{type.annotations.typealias}}
+    {% endif %}
+    {% for variable in type.allVariables %}
+    let {{ variable.name }}: {{ variable.typeName }}
+    {% endfor %}
+
+    init({% for variable in type.variables %}{{variable.name}}: {{variable.typeName}}{% endfor %}) {
+    {% for variable in type.allVariables %}
+        self.{{variable.name}} = {{variable.name}}
+    {% endfor %}
+    }
+
+    {% for method in type.methods %}
+    {% if not method.annotations == nil %}
+    func {{method.name}} -> {{method.returnTypeName}} {
+        {% if method.annotations.queryString %}
+        let queryComponents = {{method.annotations.queryString}}
+        {% else %}
+        let queryComponents: [String: String?] = [:]
+        {% endif %}
+        {% if method.annotations.body %}
+        let body: [String: Any]? = {{method.annotations.body}}
+        {% else %}
+        let body: [String: Any]? = nil
+        {% endif %}
+        {% if method.annotations.headers %}
+        let headers: [String: String]? = {{method.annotations.headers}}
+        {% else %}
+        let headers: [String: String]? = nil
+        {% endif %}
+        {% if method.annotations.cachable %}
+        let cacheable: Bool = true
+        {% else %}
+        let cacheable: Bool = false
+        {% endif %}
+        let request = Request(type: .{{method.annotations.method}},
+                              path: "{{method.annotations.path}}",
+                              components: queryComponents,
+                              body: body,
+                              cacheable: cacheable,                            
+                              headers: headers)
+
+        return networkMaker.make(request: request)
+            {% if method.annotations.downloadable %}
+            {% else %}
+            {% if method.annotations.responseType %}
+            {% if method.annotations.paginated %}
+            .transformPaginated(to: {{method.annotations.responseType}}.self, keyPath: "{{method.annotations.keyPath}}")
+            {% else %}
+            {% if method.annotations.keyPath %}
+            .transform(to: {{method.annotations.responseType}}.self, keypath: "{{method.annotations.keyPath}}").mapToDomain()
+            {% else %}
+            .transform(to: {{method.annotations.responseType}}.self)
+            {% if method.annotations.domainMapping %}
+            .mapToDomain()
+            {% endif %}
+            {% endif %}
+            {% endif %}
+            {% else %}
+            .map { _ in () }
+            {% endif %}
+            {% endif %}
+            .catchError { (error) in
+                guard let networkError = error as? NetworkError else {
+                    return .error(DomainError.underlying(error))
+                }
+
+                if case .httpError(let code, _) = networkError, code == 404 {
+                    return .error(DomainError.resourceNotFound)
+                }
+
+                return .error(DomainError.underlying(networkError))
+            }
+    }
+
+    {% endif %}
+    {% endfor %}
+}
+{% endif %}
+{% endfor %}
+

@@ -1,0 +1,2 @@
+#!/bin/sh
+git checkout -b staging && git push origin staging && git checkout master && git branch -d staging
