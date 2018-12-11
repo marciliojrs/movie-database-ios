@@ -13,8 +13,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupWindowAndRoutes()
         setupAppearanceAndUiTools()
 
-        logger.removeAllDestinations()
-
         return true
     }
 
