@@ -1,0 +1,7 @@
+#include "Pods/Target Support Files/Pods-MovieDatabase/Pods-MovieDatabase.development (release).xcconfig"
+
+BUNDLE_IDENTIFIER = com.marcilio.moviedatabase.dev
+API_BASE_PROTOCOL = https
+API_BASE_URL = api.themoviedb.org
+ENVIRONMENT = dev
+PRODUCT_NAME = MovieDatabase

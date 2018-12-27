@@ -1,0 +1,22 @@
+disabled_rules:
+  - superfluous_disable_command
+
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - Pods
+  - Carthage
+  - MovieDatabase/Common/Extensions/UIImage+DominantColors.swift
+  - MovieDatabase/Resources/Generated/R/R.generated.swift
+  - MovieDatabase/Resources/Generated/Sourcery/*.generated.swift
+  - Domain/Resources/Generated/Sourcery/*.generated.swift
+  - RestApiProvider/Resources/Sourcery/Generated/*.generated.swift
+  - Shared/Test/NavigatorTypeMock.swift
+  - Tests
+
+identifier_name:
+  excluded:
+    - id
+    - rx
+    - to
+
+line_length:
+  warning: 120

@@ -1,0 +1,48 @@
+PODS:
+  - Crashlytics (3.12.0):
+    - Fabric (~> 1.9.0)
+  - Fabric (1.9.0)
+  - Fakery (3.4.0)
+  - Kingfisher (4.10.1)
+  - R.swift (5.0.0.alpha.2):
+    - R.swift.Library (~> 5.0.0.alpha.2)
+  - R.swift.Library (5.0.0.alpha.2)
+  - Sourcery (0.15.0)
+  - SwiftyBeaver (1.6.1)
+  - URLNavigator (2.1.0)
+
+DEPENDENCIES:
+  - Crashlytics (~> 3.11)
+  - Fakery (~> 3.4)
+  - Kingfisher (~> 4.10.0)
+  - R.swift (= 5.0.0.alpha.2)
+  - Sourcery (~> 0.15)
+  - SwiftyBeaver
+  - URLNavigator
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Crashlytics
+    - Fabric
+    - Fakery
+    - Kingfisher
+    - R.swift
+    - R.swift.Library
+    - Sourcery
+    - SwiftyBeaver
+    - URLNavigator
+
+SPEC CHECKSUMS:
+  Crashlytics: 07fb167b1694128c1c9a5a5cc319b0e9c3ca0933
+  Fabric: f988e33c97f08930a413e08123064d2e5f68d655
+  Fakery: 885e894a3e7c392e1da96c6e46a1abe5a0b28686
+  Kingfisher: c148cd7b47ebde9989f6bc7c27dcaa79d81279a0
+  R.swift: 31fa1bd537fa81307815cc622122f33331f32174
+  R.swift.Library: 3c21b823839bf5a6769dc7f96cb44479dab51b1b
+  Sourcery: 5895672cae353cdbfa95f3f4aaeb75a664d76f6a
+  SwiftyBeaver: ccfcdf85a04d429f1633f668650b0ce8020bda3a
+  URLNavigator: e8cea3835b3456d7876eb728831e742273c8d209
+
+PODFILE CHECKSUM: 27958d96de329bc190fe34bd5ed9b83f6f8da521
+
+COCOAPODS: 1.5.0

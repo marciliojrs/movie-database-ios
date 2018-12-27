@@ -1,0 +1,64 @@
+<MovieListItemCell layer.shouldRasterize="true" layer.rasterizationScale="{UIScreen.scale}">
+    <macro name="GRID" value="8"/>
+
+    <UIView
+        height="100%"
+        layer.masksToBounds="false"
+        layer.shadowColor="gray"
+        layer.shadowOffset.height="0"
+        layer.shadowOffset.width="0"
+        layer.shadowOpacity="0.3"
+        layer.shadowRadius="5"
+        left="0"
+        outlet="containerView"
+        right="parent.right"
+        top="0">
+
+        <UIView
+            backgroundColor="white"
+            height="100%"
+            layer.cornerRadius="18"
+            layer.masksToBounds="true"
+            outlet="cardView"
+            width="100%">
+
+            <UIImageView
+                contentMode="scaleAspectFill"
+                height="100%"
+                imageUrl="{imageUrl}"
+                width="100%"
+            />
+            <UIView
+                alpha="0.5"
+                backgroundColor="black"
+                height="previous.height"
+                width="previous.width"
+            />
+            <UILabel
+                font="{theme.font.title3.bold}"
+                left="GRID"
+                numberOfLines="0"
+                right="parent.right - GRID"
+                text="{title}"
+                textColor="white"
+                top="GRID"
+                outlet="titleLabel"
+            />
+            <UILabel
+                backgroundColor="rgba(0, 0, 0, 0.5)"
+                bottom="parent.bottom - GRID"
+                center.x="parent.center.x"
+                font="{theme.font.footnote}"
+                height="auto + 4"
+                layer.cornerRadius="8"
+                layer.masksToBounds="true"
+                numberOfLines="0"
+                text="{releaseDate}"
+                textAlignment="center"
+                textColor="white"
+                width="auto + 10"
+                outlet="releaseDateLabel"
+            />
+        </UIView>
+    </UIView>
+</MovieListItemCell>

@@ -1,0 +1,214 @@
+fastlane_version '2.102.0'
+default_platform :ios
+
+platform :ios do
+  def check_environment
+    unless ENV.key?('CERTIFICATES_URL')
+      UI.user_error!('🚨 Environment not set. Use "--env [name]". Exiting 👋')
+    end
+  end
+
+  desc "Run unit tests for all schemes"
+  lane :tests do
+    check_environment
+    swiftlint(strict: false)
+
+    run_tests(
+      workspace: 'MovieDatabase.xcworkspace',
+      scheme: ENV['SCHEME'],
+      devices: ['iPhone SE'],
+      clean: true
+    )
+  end
+
+  desc 'Submit a new Build to Apple TestFlight'
+  lane :deploy do
+    check_environment
+    swiftlint(strict: false)
+    bump
+
+    sync_code_signing(
+      app_identifier: ENV['APP_IDENTIFIER'],
+      git_url: ENV['CERTIFICATES_URL'],
+      team_id: ENV['DEV_PORTAL_TEAM_ID'],
+      type: ENV['BUILD_TYPE'],
+      username: ENV['USERNAME']
+    )
+
+    build_app(
+      clean: true,
+      export_method: ENV['EXPORT_METHOD'],
+      output_directory: './ipa',
+      output_name: ENV['OUTPUT_NAME'],
+      scheme: ENV['SCHEME'],
+      silent: true,
+      xcargs: '-allowProvisioningUpdates'
+    )
+
+    if ENV['BUILD_TYPE'].include? 'adhoc'
+      crashlytics(
+        crashlytics_path: "./Pods/Crashlytics/submit",
+        api_token: ENV['CRASHLYTICS_API'],
+        build_secret: ENV['CRASHLYTICS_SECRET'],
+        ipa_path: './ipa/MovieDatabase.ipa'
+      )
+    else
+      upload_to_testflight(
+        ipa: './ipa/MovieDatabase.ipa',
+        app_identifier: ENV['APP_IDENTIFIER'],
+        apple_id: ENV['USERNAME'],
+        dev_portal_team_id: ENV['DEV_PORTAL_TEAM_ID'],
+        skip_submission: false,
+        skip_waiting_for_build_processing: true,
+        team_id: ENV['TEAM_ID'],
+        username: ENV['USERNAME']
+      )
+    end
+
+    upload_symbols_to_crashlytics(
+      api_token: ENV['CRASHLYTICS_API'],
+      dsym_path: './ipa/MovieDatabase.app.dSYM.zip'
+    )
+    clean_build_artifacts
+    tag_build
+  end
+
+  ######## DEVICE ##########
+
+  desc "Add new device to Member Center"
+  lane :add_device do
+    device_name = prompt(text: "Device Name: ")
+    device_udid = prompt(text: "Device UDID: ")
+    register_devices(devices: {device_name => device_udid})
+
+    refresh_code_signing
+  end
+
+  ######## UTIL ########
+
+  # Create Pull Request from the current branch
+  desc "Create a pull request from the current branch"
+  lane :pr do |options|
+    ok = system("which hub > /dev/null 2>&1")
+    if ok == false
+      raise "Please install https://github.com/github/hub".yellow
+    end
+
+    ensure_git_status_clean
+    branch = git_branch
+    if branch == "master"
+      raise "You can't open a Pull Request from this branch".red
+    else
+      UI.success "it's ok, you're on branch :#{branch}".green
+      sh "git push origin #{branch}"
+    end
+
+    pr_title = prompt(text: 'Type pull request title: ')
+    sh "hub issue"
+    desc = prompt(text: 'Do you want add a description? It\'s always better :).', boolean:true)
+    prompt_text = "Type pull request description (Fixing any issues? Just write: fixed #issueNumber.): "
+    pr_description = desc ? prompt(text: prompt_text) : ""
+    sh "touch pr_file"
+    write = open('pr_file', 'w')
+    write.write(pr_title)
+    write.write("\n")
+    write.write(pr_description)
+    write.close
+
+    base = options[:base] if options[:base]
+    if base
+      pr_link = sh "hub pull-request -F pr_file -b #{base}"
+    else
+      pr_link = sh "hub pull-request -F pr_file"
+    end
+
+    sh "rm pr_file"
+    clipboard(value: pr_link)
+  end
+
+  def tag_build
+    last_commit = last_git_commit
+    if last_commit[:message].include?('Build version bump')
+      puts "Already tagged"
+    else
+      version = "#{get_version_number(target: ENV['GET_VERSION_NUMBER_TARGET'], configuration: ENV['GET_VERSION_NUMBER_CONFIGURATION'])}b#{get_build_number}"
+      add_git_tag(
+        tag: "builds/v#{version}"
+      )
+      push_git_tags
+    end
+  end
+
+  ######## VERSIONING ##########
+
+  def get_version_short_string
+    get_info_plist_value(path: $config[:plist], key: 'CFBundleShortVersionString')
+  end
+
+  desc "Change version number with prompt"
+  lane :change_version_number do
+    number = prompt(text: 'Version number: ')
+    version_number = update_version_number_and_commit(number: number)
+    version_number
+  end
+
+  desc "Increment Patch version"
+  lane :patch do
+    version_number = update_version_number_and_commit(bump_type: "patch")
+    version_number
+  end
+
+  desc "Increment minor version"
+  lane :minor do
+    version_number = update_version_number_and_commit(bump_type: "minor")
+    version_number
+  end
+
+  desc "Increment major version"
+  lane :major do
+    version_number = update_version_number_and_commit(bump_type: "major")
+    version_number
+  end
+
+  desc "bump build version and commit"
+  lane :bump do
+    last_commit = last_git_commit
+    if last_commit[:message].include?('Build version bump')
+      puts "Already bumped"
+    else
+      build_number = increment_build_with_number_of_commits
+      sh "git commit -am \"Build version bump: #{build_number} [ci skip]\""
+
+      build_number
+    end
+  end
+
+  private_lane :increment_build_with_number_of_commits do
+    number_of_commits = sh "git rev-list HEAD --count"
+    increment_build_number(build_number: number_of_commits)
+
+    lane_context[SharedValues::BUILD_NUMBER]
+  end
+
+  private_lane :update_version_number_and_commit do |options|
+    ensure_git_status_clean
+    new_version_number = options[:number]
+    bump_type = options[:bump_type]
+
+    if (constants['proj']['xcodeproj'] == nil)
+      raise "Your fastlane File is missing a xcodeproj variable: proj[:xcodeproj] = './PATH_TO_PROJECT.xcodeproj/' ".red
+    end
+
+    if new_version_number
+      increment_version_number(version_number: new_version_number, xcodeproj: constants['proj']['xcodeproj'])
+    elsif bump_type
+      increment_version_number(bump_type: bump_type, xcodeproj: constants['proj']['xcodeproj'])
+    else
+      increment_version_number(xcodeproj: constants['proj']['xcodeproj'])
+    end
+
+    version_number = get_version_short_string
+    sh "git commit -am \"Change version number: #{version_number} [ci skip]\""
+    version_number
+  end
+end

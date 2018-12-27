@@ -1,0 +1,119 @@
+<UIView
+    backgroundColor="clear"
+    id="view">
+
+    <macro name="GRID" value="16"/>
+
+    <UIVisualEffectView
+        effect="UIBlurEffect(light)"
+        height="100%"
+        outlet="visualEffectView"
+        width="100%"
+    />
+    <UIView
+        backgroundColor="clear"
+        height="100%"
+        id="cardView"
+        layer.masksToBounds="true"
+        outlet="cardView"
+        top="0"
+        width="100%">
+
+        <UIImageView
+            contentMode="scaleAspectFill"
+            height="100%"
+            imageUrl="{imageUrl}"
+            width="100%"
+        />
+        <UIView
+            alpha="0.5"
+            backgroundColor="black"
+            height="previous.height"
+            width="previous.width"
+        />
+        <UIScrollView
+            alwaysBounceVertical="false"
+            backgroundColor="clear"
+            contentInset.bottom="GRID"
+            contentInsetAdjustmentBehavior="never"
+            id="scrollView"
+            outlet="scrollView"
+            scrollIndicatorInsets.bottom="parent.safeAreaInsets.bottom"
+            scrollIndicatorInsets.top="parent.safeAreaInsets.top"
+            top="0">
+
+            <UILabel
+                font="{theme.font.title1.bold}"
+                id="title"
+                left="GRID"
+                numberOfLines="0"
+                outlet="titleLabel"
+                right="#closeContainer.left - GRID"
+                text="{title}"
+                textColor="white"
+                top="safeAreaInsets.top + GRID"
+            />
+            <UILabel
+                backgroundColor="rgba(0, 0, 0, 0.5)"
+                font="{theme.font.footnote}"
+                height="auto + 4"
+                layer.cornerRadius="8"
+                layer.masksToBounds="true"
+                left="GRID"
+                numberOfLines="0"
+                outlet="releaseDateLabel"
+                text="{releaseDate}"
+                textAlignment="center"
+                textColor="white"
+                top="previous.bottom + GRID"
+                width="auto + 10"
+            />
+            <UILabel
+                backgroundColor="rgba(0, 0, 0, 0.5)"
+                font="{theme.font.footnote}"
+                height="auto + 4"
+                layer.cornerRadius="8"
+                layer.masksToBounds="true"
+                left="GRID"
+                numberOfLines="0"
+                outlet="genresLabel"
+                text="{genres}"
+                textAlignment="center"
+                textColor="white"
+                top="previous.bottom + GRID / 2"
+                width="auto + 10"
+            />
+            <UILabel
+                font="{theme.font.body}"
+                left="GRID"
+                numberOfLines="0"
+                outlet="overviewLabel"
+                right="parent.right - GRID"
+                text="{overview}"
+                textColor="white"
+                top="previous.bottom + GRID"
+            />
+        </UIScrollView>
+    </UIView>
+    <UIView
+        backgroundColor="rgba(0, 0, 0, 0.2)"
+        height="32"
+        layer.cornerRadius="width / 2"
+        layer.masksToBounds="true"
+        right="parent.right - GRID"
+        top="#title.top"
+        id="closeContainer"
+        width="32">
+
+        <UIButton
+            center.x="parent.center.x"
+            center.y="parent.center.y"
+            height="32"
+            image="close"
+            outlet="closeButton"
+            tintColor="white"
+            type="system"
+            width="32"
+        />
+    </UIView>
+</UIView>

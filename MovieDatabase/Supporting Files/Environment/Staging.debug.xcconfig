@@ -1,0 +1,7 @@
+#include "Pods/Target Support Files/Pods-MovieDatabase/Pods-MovieDatabase.staging (debug).xcconfig"
+
+BUNDLE_IDENTIFIER = com.marcilio.moviedatabase.staging
+API_BASE_PROTOCOL = https
+API_BASE_URL = api.themoviedb.org
+ENVIRONMENT = staging
+PRODUCT_NAME = MovieDatabase

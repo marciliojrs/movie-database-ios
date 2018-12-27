@@ -1,0 +1,26 @@
+<UIView backgroundColor="black">
+    <macro name="COLLECTION_SPACING" value="8"/>
+
+    <UICollectionView
+        alwaysBounceVertical="true"
+        backgroundColor="black"
+        bottom="100% - parent.safeAreaInsets.bottom"
+        collectionViewLayout.itemSize.height="collectionViewLayout.itemSize.width * 4 / 3"
+        collectionViewLayout.itemSize.width="(width - 3 * COLLECTION_SPACING) / 2"
+        collectionViewLayout.minimumInteritemSpacing="COLLECTION_SPACING"
+        collectionViewLayout.minimumLineSpacing="COLLECTION_SPACING"
+        collectionViewLayout.sectionInset.bottom="COLLECTION_SPACING * 4"
+        collectionViewLayout.sectionInset.left="COLLECTION_SPACING"
+        collectionViewLayout.sectionInset.right="COLLECTION_SPACING"
+        collectionViewLayout.sectionInset.top="COLLECTION_SPACING"
+        contentInsetAdjustmentBehavior="never"
+        outlet="collectionView"
+        top="parent.safeAreaInsets.top"
+    />
+    <UIActivityIndicatorView
+        bottom="parent.bottom - 8"
+        center.x="parent.center.x"
+        color="white"
+        isAnimating="isLoading"
+    />
+</UIView>

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+function install_or_upgrade {
+  if brew ls --versions "$1" >/dev/null; then
+    brew upgrade "$1"
+  else
+    brew install "$1"
+  fi
+}
+
+echo "--------------------";
+echo "⬇️  Installing and/or updating brew";
+echo "--------------------";
+brew update
+
+echo "--------------------";
+echo "⬇️  Installing and/or updating carthage";
+echo "--------------------";
+brew install lvillani/tap/carthage-copy-frameworks
+install_or_upgrade carthage
+carthage bootstrap --platform iOS --cache-builds --no-use-binaries
+
+echo "--------------------";
+echo "⬇️  Installing SwiftLint";
+echo "--------------------";
+install_or_upgrade swiftlint
+
+echo "------------------";
+echo "⬇️  Running bundler";
+echo "------------------";
+bundle install
+
+echo "--------------------";
+echo "⬇️  Running cocoapods";
+echo "--------------------";
+bundle exec pod install --repo-update
+
+echo "✅  Done"
