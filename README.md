@@ -29,7 +29,7 @@ This script will install all dependencies necessary to run the app, like:
 
 To run the app just open the `MovieDatabase.xcworkspace` file and play.
 
-## Running the tests
+### Running the tests
 
 To run the tests just run the following script in your terminal application:
 
@@ -48,3 +48,7 @@ To run the tests just run the following script in your terminal application:
 - Sourcery: Code generator used to create some boilerplate codes like Codables, API requests, Equatables.
 - SwiftyBeaver: Logger library.
 - URLNavigator: Navigation through view controllers by URLs.
+
+### Preview
+
+![Preview](https://github.com/marciliojrs/movie-database-ios/blob/master/screenshots/preview.gif)
